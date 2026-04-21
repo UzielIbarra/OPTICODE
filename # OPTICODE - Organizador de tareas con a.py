@@ -1,0 +1,67 @@
+# OPTICODE - Organizador de tareas con algoritmo voraz
+
+class Tarea:
+    def __init__(self, nombre, tiempo, valor):
+        self.nombre = nombre
+        self.tiempo = tiempo
+        self.valor = valor
+        self.rentabilidad = valor / tiempo if tiempo != 0 else 0
+
+    def __str__(self):
+        return f"{self.nombre} | Tiempo: {self.tiempo} min | Valor: {self.valor} | Valor/min: {self.rentabilidad:.2f}"
+
+
+def ingresar_tareas():
+    tareas = []
+    n = int(input("¿Cuántas tareas deseas ingresar?: "))
+    for i in range(n):
+        print(f"\nTarea {i+1}")
+        nombre = input("Nombre: ")
+        tiempo = float(input("Tiempo estimado (min): "))
+        valor = float(input("Valor/Puntaje: "))
+        tareas.append(Tarea(nombre, tiempo, valor))
+    return tareas
+
+
+def ordenar_tareas(tareas):
+    return sorted(tareas, key=lambda x: x.rentabilidad, reverse=True)
+
+
+def seleccionar_tareas(tareas, tiempo_disponible):
+    seleccionadas = []
+    tiempo_usado = 0
+    valor_total = 0
+    for tarea in tareas:
+        if tiempo_usado + tarea.tiempo <= tiempo_disponible:
+            seleccionadas.append(tarea)
+            tiempo_usado += tarea.tiempo
+            valor_total += tarea.valor
+    return seleccionadas, tiempo_usado, valor_total
+
+
+def mostrar_tareas(tareas, titulo):
+    print(f"\n--- {titulo} ---")
+    for t in tareas:
+        print(t)
+
+
+def main():
+    print("===== OPTICODE: Organizador Inteligente de Tareas =====")
+    tareas = ingresar_tareas()
+    tiempo_disponible = float(input("\nTiempo total disponible (min): "))
+
+    tareas_ordenadas = ordenar_tareas(tareas)
+    mostrar_tareas(tareas_ordenadas, "Tareas Ordenadas por Valor/Minuto")
+
+    seleccionadas, tiempo_usado, valor_total = seleccionar_tareas(tareas_ordenadas, tiempo_disponible)
+    mostrar_tareas(seleccionadas, "Tareas Seleccionadas")
+
+    print("\n===== Resumen =====")
+    print(f"Tiempo total disponible: {tiempo_disponible} min")
+    print(f"Tiempo utilizado: {tiempo_usado} min")
+    print(f"Tiempo restante: {tiempo_disponible - tiempo_usado} min")
+    print(f"Valor total obtenido: {valor_total} pts")
+
+
+if __name__ == "__main__":
+    main()
