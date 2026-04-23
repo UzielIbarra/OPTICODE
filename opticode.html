@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>OPTICODE</title>
+</head>
+<body>
+    <h1>OPTICODE</h1>
+    
+    <p>Nombre: <input type="text" id="nombre"></p>
+    <p>Tiempo (min): <input type="number" id="tiempo"></p>
+    <p>Valor: <input type="number" id="valor"></p>
+    <button onclick="agregarTarea()">Agregar</button>
+    
+    <p>Tiempo disponible: <input type="number" id="tiempoDisponible"></p>
+    <button onclick="calcular()">Calcular</button>
+    
+    <p>Resultados:</p>
+    <textarea id="resultados" rows="15" cols="60" readonly></textarea>
+
+    <script>
+        let tareas = [];
+
+        function agregarTarea() {
+            let nombre = document.getElementById("nombre").value;
+            let tiempo = parseFloat(document.getElementById("tiempo").value);
+            let valor = parseFloat(document.getElementById("valor").value);
+            
+            tareas.push({
+                nombre: nombre,
+                tiempo: tiempo,
+                valor: valor,
+                rentabilidad: valor / tiempo
+            });
+            
+            document.getElementById("nombre").value = "";
+            document.getElementById("tiempo").value = "";
+            document.getElementById("valor").value = "";
+        }
+
+        function calcular() {
+            let tiempoDisponible = parseFloat(document.getElementById("tiempoDisponible").value);
+            
+            let tareasOrdenadas = tareas.slice().sort((a, b) => b.rentabilidad - a.rentabilidad);
+            
+            let seleccionadas = [];
+            let tiempoUsado = 0;
+            let valorTotal = 0;
+            
+            for (let i = 0; i < tareasOrdenadas.length; i++) {
+                let tarea = tareasOrdenadas[i];
+                if (tiempoUsado + tarea.tiempo <= tiempoDisponible) {
+                    seleccionadas.push(tarea);
+                    tiempoUsado += tarea.tiempo;
+                    valorTotal += tarea.valor;
+                }
+            }
+            
+            let resultado = "";
+            resultado += "TAREAS ORDENADAS:\n\n";
+            for (let i = 0; i < tareasOrdenadas.length; i++) {
+                let t = tareasOrdenadas[i];
+                resultado += t.nombre + " | " + t.tiempo + " min | " + t.valor + " pts | " + t.rentabilidad.toFixed(2) + "\n";
+            }
+            
+            resultado += "\nTAREAS SELECCIONADAS:\n\n";
+            for (let i = 0; i < seleccionadas.length; i++) {
+                let t = seleccionadas[i];
+                resultado += t.nombre + " | " + t.tiempo + " min | " + t.valor + " pts | " + t.rentabilidad.toFixed(2) + "\n";
+            }
+            
+            resultado += "\nRESUMEN\n";
+            resultado += "Tiempo disponible: " + tiempoDisponible + " min\n";
+            resultado += "Tiempo usado: " + tiempoUsado + " min\n";
+            resultado += "Tiempo restante: " + (tiempoDisponible - tiempoUsado) + " min\n";
+            resultado += "Valor total: " + valorTotal + " pts\n";
+            
+            document.getElementById("resultados").value = resultado;
+        }
+    </script>
+</body>
+</html>
