@@ -18,9 +18,4 @@ Resumen de Eficiencia: Al final del proceso, se agregó un bloque de resultados 
 
 Lo que se Corrigió (Bugs y Estabilidad)Error de División por Cero: 
 
-Se corrigió un posible fallo crítico donde el programa se cerraba si el usuario ingresaba una tarea con tiempo "0".Ahora el código valida esto y asigna rentabilidad cero automáticamente.
-
-Punto de Entrada del Script: Se corrigió el error donde el código no ejecutaba nada al darle "Play". 
--Se añadió el bloque if __name__ == "__main__": para que el script arranque correctamente.
-Fuga de Datos: Se aseguró que el tiempo restante se calcule de forma dinámica restando el tiempo usado del tiempo total disponible, evitando errores de cálculo manual.
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
