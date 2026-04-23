@@ -23,3 +23,4 @@ Se corrigió un posible fallo crítico donde el programa se cerraba si el usuari
 Punto de Entrada del Script: Se corrigió el error donde el código no ejecutaba nada al darle "Play". 
 -Se añadió el bloque if __name__ == "__main__": para que el script arranque correctamente.
 Fuga de Datos: Se aseguró que el tiempo restante se calcule de forma dinámica restando el tiempo usado del tiempo total disponible, evitando errores de cálculo manual.
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
