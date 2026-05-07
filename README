@@ -47,3 +47,53 @@ Botón Ejecutar Algoritmo Voraz con ventana Toplevel de resultados
 Complejidad total del algoritmo: O(n log n)
 
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Notas de Version 1.4 -----------------
+¿Qué se hizo en este sprint?
+Se reintegró el algoritmo voraz como núcleo funcional del sistema, que había quedado fuera en el Sprint 2. Además se refinó la interfaz, se añadieron anotaciones de complejidad al código y se conectó el algoritmo directamente con el Backend.
+
+Cambios respecto al Sprint 2
+AspectoSprint 2Sprint 3Algoritmo vorazAusenteReintegrado como funciones independientesClase BackendSin cálculo greedyNuevo método ejecutar_voraz()Resultado del cálculoNo existíaVentana Toplevel con tareas ordenadas, seleccionadas y resumenBotón de acción principalSolo agregar / marcar estadoSe añade Ejecutar Algoritmo VorazTarea._str_No existíaAgregado para mostrar info formateada en resultadosValidación tiempo límiteBloqueaba siempreSolo bloquea si tiempo_limite > 0, permite agregar sin haberlo definidoColores de listasSin distinción visualPendientes blanco, Completadas verde, No completadas rojoTamaño ventana1100x6501100x700
+
+Algoritmo voraz implementado
+pythondef ordenar_tareas(tareas):
+    # O(n log n) — ordena por rentabilidad descendente
+    return sorted(tareas, key=lambda x: x.rentabilidad, reverse=True)
+
+def seleccionar_tareas(tareas, tiempo_disponible):
+    # O(n) — selección greedy dentro del tiempo límite
+    seleccionadas, tiempo_usado, valor_total = [], 0, 0
+    for tarea in tareas:
+        if tiempo_usado + tarea.tiempo <= tiempo_disponible:
+            seleccionadas.append(tarea)
+            tiempo_usado += tarea.tiempo
+            valor_total  += tarea.valor
+    return seleccionadas, tiempo_usado, valor_total
+Criterio de selección: rentabilidad = valor / tiempo
+Complejidad total: O(n log n) — dominada por el ordenamiento.
+
+Integración con Backend
+pythondef ejecutar_voraz(self):
+    tareas_ordenadas = ordenar_tareas(self.tareas)
+    seleccionadas, tiempo_usado, valor_total = seleccionar_tareas(
+        tareas_ordenadas, self.tiempo_limite
+    )
+    return tareas_ordenadas, seleccionadas, tiempo_usado, valor_total
+El Backend orquesta ambas funciones y devuelve todo lo necesario para renderizar los resultados en la UI.
+
+Flujo completo del sistema
+1. Definir tiempo límite
+2. Agregar tareas (o cargar JSON)
+3. Ejecutar Algoritmo Voraz
+   → ordena por rentabilidad
+   → selecciona hasta agotar el tiempo
+   → muestra resultado en ventana Toplevel
+4. Marcar tareas como Completadas / No completadas
+
+Análisis de complejidad
+FunciónTemporalEspacialordenar_tareasO(n log n)O(n)seleccionar_tareasO(n)O(k)ejecutar_vorazO(n log n)O(n)agregar_tareaO(n)O(1)actualizar_listasO(n)O(n)
+
+Ejecutar
+bashpython opticode_pro_max.py
+Requiere Python 3 con tkinter (incluido por defecto).
+
+OPTICODE PRO MAX | Sprint 3 | CUCEI — Universidad de Guadalajara
