@@ -1,0 +1,173 @@
+import tkinter as tk
+from tkinter import messagebox, filedialog
+import json
+
+# ================= BACKEND =================
+class Tarea:
+    def __init__(self, nombre, tiempo, valor):
+        self.nombre = nombre
+        self.tiempo = float(tiempo)
+        self.valor = float(valor)
+        self.rentabilidad = self.valor / self.tiempo if self.tiempo != 0 else 0
+        self.estado = "Pendiente"  # Pendiente, Completada, No completada
+
+class Backend:
+    def __init__(self):
+        self.tareas = []
+        self.tiempo_limite = 0
+
+    def agregar_tarea(self, nombre, tiempo, valor):
+        tiempo = float(tiempo)
+        if self.tiempo_usado() + tiempo > self.tiempo_limite:
+            return False
+        self.tareas.append(Tarea(nombre, tiempo, valor))
+        return True
+
+    def tiempo_usado(self):
+        return sum(t.tiempo for t in self.tareas if t.estado != "No completada")
+
+    def marcar_estado(self, index, estado):
+        if 0 <= index < len(self.tareas):
+            self.tareas[index].estado = estado
+
+    def obtener_por_estado(self, estado):
+        return [t for t in self.tareas if t.estado == estado]
+
+    def estadisticas(self):
+        total = len(self.tareas)
+        tiempo = sum(t.tiempo for t in self.tareas)
+        valor = sum(t.valor for t in self.tareas)
+        return total, tiempo, valor
+
+backend = Backend()
+
+# ================= FUNCIONES =================
+
+def agregar():
+    nombre = entry_nombre.get()
+    tiempo = entry_tiempo.get()
+    valor = entry_valor.get()
+
+    if nombre and tiempo and valor:
+        if backend.agregar_tarea(nombre, tiempo, valor):
+            actualizar_listas()
+            limpiar()
+        else:
+            messagebox.showwarning("Sin tiempo", "No tienes tiempo disponible")
+    else:
+        messagebox.showwarning("Error", "Completa los campos")
+
+def marcar_completada():
+    sel = lista_pendientes.curselection()
+    if sel:
+        tarea = backend.obtener_por_estado("Pendiente")[sel[0]]
+        tarea.estado = "Completada"
+        actualizar_listas()
+
+def marcar_no_completada():
+    sel = lista_pendientes.curselection()
+    if sel:
+        tarea = backend.obtener_por_estado("Pendiente")[sel[0]]
+        tarea.estado = "No completada"
+        actualizar_listas()
+
+def actualizar_listas():
+    lista_pendientes.delete(0, tk.END)
+    lista_completadas.delete(0, tk.END)
+    lista_no.delete(0, tk.END)
+
+    for t in backend.obtener_por_estado("Pendiente"):
+        lista_pendientes.insert(tk.END, t.nombre)
+
+    for t in backend.obtener_por_estado("Completada"):
+        lista_completadas.insert(tk.END, t.nombre)
+
+    for t in backend.obtener_por_estado("No completada"):
+        lista_no.insert(tk.END, t.nombre)
+
+    total, tiempo, valor = backend.estadisticas()
+    label_stats.config(text=f"Tareas: {total} | Tiempo total: {tiempo} | Valor total: {valor}")
+
+def definir_tiempo():
+    try:
+        backend.tiempo_limite = float(entry_total.get())
+        messagebox.showinfo("OK", "Tiempo definido")
+    except:
+        messagebox.showerror("Error", "Valor inválido")
+
+def cargar_json():
+    file = filedialog.askopenfilename(filetypes=[("JSON files", "*.json")])
+    if file:
+        with open(file, "r") as f:
+            data = json.load(f)
+            for t in data:
+                backend.tareas.append(Tarea(t["nombre"], t["tiempo"], t["valor"]))
+        actualizar_listas()
+
+def limpiar():
+    entry_nombre.delete(0, tk.END)
+    entry_tiempo.delete(0, tk.END)
+    entry_valor.delete(0, tk.END)
+
+# ================= UI =================
+
+root = tk.Tk()
+root.title("OPTICODE PRO MAX")
+root.geometry("1100x650")
+root.config(bg="#0f172a")
+
+tk.Label(root, text="OPTICODE PRO MAX", font=("Segoe UI", 24, "bold"),
+         fg="#22c55e", bg="#0f172a").pack(pady=10)
+
+# FORM
+frame = tk.Frame(root, bg="#1e293b")
+frame.pack(pady=10)
+
+entry_nombre = tk.Entry(frame)
+entry_tiempo = tk.Entry(frame)
+entry_valor = tk.Entry(frame)
+
+tk.Label(frame, text="Nombre", bg="#1e293b", fg="white").grid(row=0, column=0)
+tk.Label(frame, text="Tiempo", bg="#1e293b", fg="white").grid(row=1, column=0)
+tk.Label(frame, text="Valor", bg="#1e293b", fg="white").grid(row=2, column=0)
+
+entry_nombre.grid(row=0, column=1)
+entry_tiempo.grid(row=1, column=1)
+entry_valor.grid(row=2, column=1)
+
+tk.Button(frame, text="Agregar", command=agregar, bg="#22c55e", fg="white").grid(row=3, column=0, columnspan=2)
+
+# TIEMPO
+tk.Label(root, text="Tiempo disponible:", bg="#0f172a", fg="white").pack()
+entry_total = tk.Entry(root)
+entry_total.pack()
+tk.Button(root, text="Definir tiempo", command=definir_tiempo).pack(pady=5)
+
+# BOTÓN JSON
+tk.Button(root, text="Cargar JSON", command=cargar_json, bg="#3b82f6", fg="white").pack(pady=5)
+
+# LISTAS
+frame_list = tk.Frame(root, bg="#0f172a")
+frame_list.pack(pady=20)
+
+lista_pendientes = tk.Listbox(frame_list, width=30)
+lista_completadas = tk.Listbox(frame_list, width=30)
+lista_no = tk.Listbox(frame_list, width=30)
+
+tk.Label(frame_list, text="Pendientes", fg="white", bg="#0f172a").grid(row=0, column=0)
+tk.Label(frame_list, text="Completadas", fg="white", bg="#0f172a").grid(row=0, column=1)
+tk.Label(frame_list, text="No completadas", fg="white", bg="#0f172a").grid(row=0, column=2)
+
+lista_pendientes.grid(row=1, column=0)
+lista_completadas.grid(row=1, column=1)
+lista_no.grid(row=1, column=2)
+
+# BOTONES ESTADO
+tk.Button(root, text="✔ Completar", command=marcar_completada, bg="#22c55e").pack()
+tk.Button(root, text="❌ No completar", command=marcar_no_completada, bg="#ef4444").pack()
+
+# STATS
+label_stats = tk.Label(root, text="Stats", fg="white", bg="#0f172a")
+label_stats.pack(pady=10)
+
+root.mainloop()
