@@ -18,4 +18,32 @@ Resumen de Eficiencia: Al final del proceso, se agregó un bloque de resultados 
 
 Lo que se Corrigió (Bugs y Estabilidad)Error de División por Cero: 
 
+1.3 Opticode Pro Max Patch Notes
+¿Qué se hizo en este sprint?
+Se rediseñó completamente la aplicación partiendo de la v1.2 del Sprint 1. El enfoque fue separar la lógica del negocio de la interfaz gráfica, agregar gestión de estados para las tareas y mejorar la experiencia visual.
+
+Cambios respecto al Sprint 1 (v1.2)
+AspectoSprint 1Sprint 2ArquitecturaTodo en clase OpticodeAppBackend separado de la UIEstados de tareasNo existíaPendiente / Completada / No completadaValidación de tiempoSin restricción al agregarBloquea si excede el límite definidoCarga de datosSolo manualManual + importación desde JSONVisualizaciónUn solo Text de resultados3 listas separadas por estadoEstadísticasSolo al calcularLabel actualizado en tiempo realDiseñoGris plano, 600x500Tema oscuro #0f172a, 1100x650
+
+Nuevas clases y funciones
+Backend — centraliza toda la lógica:
+
+agregar_tarea() — valida tiempo disponible antes de insertar
+tiempo_usado() — suma el tiempo de tareas no descartadas
+marcar_estado() — cambia el estado de una tarea por índice
+obtener_por_estado() — filtra tareas según su estado
+estadisticas() — retorna totales de tareas, tiempo y valor
+
+Tarea — se agregó el atributo estado con tres valores posibles: Pendiente, Completada, No completada.
+
+Lo que quedó pendiente
+El algoritmo voraz (ordenar_tareas / seleccionar_tareas) que era el núcleo del Sprint 1 no fue portado a esta versión — se resuelve en el Sprint 3.
+
+Cambios Sprint 2 → Sprint 3
+
+Algoritmo voraz reintegrado como funciones independientes (ordenar_tareas, seleccionar_tareas)
+Backend expone el método ejecutar_voraz() que los orquesta
+Botón Ejecutar Algoritmo Voraz con ventana Toplevel de resultados
+Complejidad total del algoritmo: O(n log n)
+
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
